@@ -1,14 +1,15 @@
 "use client"
 import { useState, useEffect } from 'react';
-import useUserStore from '../app/store/store';
+import useUserStore from '../store/store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function Login() {
-  const { login, isLoggedIn } = useUserStore();
+export default function SignUp() {
+  const { signUp, isLoggedIn } = useUserStore();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
   });
@@ -16,9 +17,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Redirect to home if user is already logged in
   useEffect(() => {
     if (isLoggedIn) {
-      router.push('/home'); // Redirect to home if already logged in
+      router.push('/home');
     }
   }, [isLoggedIn, router]);
 
@@ -35,23 +37,20 @@ export default function Login() {
     setLoading(true);
     setError(null);
 
-    // Simple client-side validation
-    if (!formData.email || !formData.password) {
-      setError('Email and password are required.');
+    // Basic client-side validation
+    if (!formData.name || !formData.email || !formData.password) {
+      setError('All fields are required.');
       setLoading(false);
       return;
     }
 
     try {
-      // Simulate the login process with the stored user data
-      const user = { email: formData.email, password: formData.password };
-      login(user); // You should ideally be interacting with an API for authentication
-      console.log('User logged in:', user);
-      
-      // Redirect to home page after successful login
-      router.push('/home');
+      // Simulate the sign-up process
+      signUp(formData);
+      console.log('User signed up:', formData);
+      router.push('/login'); // Redirect to login page after successful sign-up
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError('Sign-up failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -60,11 +59,24 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="bg-black p-8 rounded-xl shadow-md w-96">
-        <h2 className="text-2xl font-semibold text-center mb-4">Login</h2>
+        <h2 className="text-2xl font-semibold text-center mb-4">Sign Up</h2>
         
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-white-700">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              required
+            />
+          </div>
+
           <div>
             <label htmlFor="email" className="block text-white-700">Email</label>
             <input
@@ -86,7 +98,7 @@ export default function Login() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              className="w-full p-3 mt-1 border border-white-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               required
             />
           </div>
@@ -94,14 +106,14 @@ export default function Login() {
           <div className="flex justify-center">
             <button
               type="submit"
-              className={`px-6 py-2 ${loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-500'} text-white rounded-lg w-full`}
+              className={`px-6 py-2 ${loading ? 'bg-white-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-500'} text-white rounded-lg w-full`}
               disabled={loading}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? 'Signing up...' : 'Sign Up'}
             </button>
           </div>
           <div>
-            <p className="text-center mt-4">Don't have an account? <Link href="/signup" className="text-blue-500">Sign up</Link></p>
+            <p className="text-center mt-4">Already have an account? <Link href="/" className="text-blue-500">Login</Link></p> 
           </div>
         </form>
       </div>
