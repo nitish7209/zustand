@@ -1,14 +1,23 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-// Utility to load from localStorage
+// Utility to safely load from localStorage only on the client-side
 const loadFromLocalStorage = () => {
-  const storedUser = localStorage.getItem('user');
-  return storedUser ? JSON.parse(storedUser) : null;
-}
+  if (typeof window !== 'undefined') {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  }
+  return null;
+};
 
 const useUserStore = create((set) => ({
-  user: loadFromLocalStorage(), // Load user from localStorage if available
-  isLoggedIn: loadFromLocalStorage() !== null, // Check if the user is logged in
+  user: null, // Initial state is null to avoid SSR issues
+  isLoggedIn: false, // Default to not logged in
+
+  // Initialize the state from localStorage on the client side
+  initializeUser: () => {
+    const user = loadFromLocalStorage();
+    set({ user, isLoggedIn: !!user });
+  },
 
   // Sign up (Create user)
   signUp: (userData) => {
